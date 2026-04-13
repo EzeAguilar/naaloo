@@ -23,21 +23,35 @@ public class ClientesController : ControllerBase
     public ActionResult<Cliente> GetById(int id)
     {
         var cliente = _repository.GetById(id);
-        return cliente is null ? NotFound() : Ok(cliente);
+        return cliente is null ? NotFound($"No existe un cliente con id {id}.") : Ok(cliente);
     }
 
     [HttpPost]
-    public ActionResult<Cliente> Create(Cliente cliente)
+    public ActionResult<Cliente> Create(ClienteDto clienteDto)
     {
+        var cliente = new Cliente
+        {
+            Nombre = clienteDto.Nombre,
+            Apellido = clienteDto.Apellido,
+            Direccion = clienteDto.Direccion
+        };
+
         var created = _repository.Add(cliente);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
     [HttpPut("{id:int}")]
-    public ActionResult<Cliente> Update(int id, Cliente cliente)
+    public ActionResult<Cliente> Update(int id, ClienteDto clienteDto)
     {
+        var cliente = new Cliente
+        {
+            Nombre = clienteDto.Nombre,
+            Apellido = clienteDto.Apellido,
+            Direccion = clienteDto.Direccion
+        };
+
         var updated = _repository.Update(id, cliente);
-        return updated is null ? NotFound() : Ok(updated);
+        return updated is null ? NotFound($"No existe un cliente con id {id}.") : Ok(updated);
     }
 
     [HttpDelete("{id:int}")]
