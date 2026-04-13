@@ -182,7 +182,7 @@ La API sigue los principios REST: uso semántico de los verbos HTTP (`GET`, `POS
 Se utiliza el contenedor de IoC nativo de ASP.NET Core. El repositorio se registra como `Scoped` en `Program.cs`:
 
 ```csharp
-builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
+builder.Services.AddSingleton<IClienteRepository, ClienteRepository>();
 ```
 
 El controlador recibe la dependencia por constructor sin instanciarla manualmente, siguiendo el principio de **Inversión de Control**:
