@@ -1,0 +1,60 @@
+trigger:
+  branches:
+    include:
+      - master # o la rama principal que uses
+
+pool:
+  name: 'Azure Pipelines'
+  vmImage: 'ubuntu-latest'
+
+variables:
+  buildConfiguration: 'Release'
+  apiProjectPath: 'ClientesApi/ClientesApi.csproj' 
+  azureSubscriptionConnection: 'Conexion-Azure-Naaloo' 
+  appServiceName: 'naaloo' 
+
+stages:
+- stage: Build
+  displayName: 'Build Backend'
+  jobs:
+  - job: Build
+    displayName: 'Compilar y Publicar Artefacto'
+    steps:
+    - task: UseDotNet@2
+      inputs:
+        packageType: 'sdk'
+        version: '8.x'
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Restaurar y Publicar'
+      inputs:
+        command: 'publish'
+        publishWebProjects: false
+        projects: '$(apiProjectPath)'
+        arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+        zipAfterPublish: true
+
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'drop'
+        publishLocation: 'Container'
+
+- stage: Deploy
+  displayName: 'Deploy to App Service'
+  dependsOn: Build 
+  condition: succeeded()
+  jobs:
+  - deployment: Deploy
+    environment: 'Produccion'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: AzureRmWebAppDeployment@4
+            inputs:
+              ConnectionType: 'AzureRM'
+              azureSubscription: '$(azureSubscriptionConnection)'
+              appType: 'webAppLinux' 
+              WebAppName: '$(appServiceName)'
+              packageForLinux: '$(Pipeline.Workspace)/drop/*.zip'
