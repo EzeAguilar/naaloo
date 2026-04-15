@@ -29,28 +29,14 @@ public class ClientesController : ControllerBase
     [HttpPost]
     public ActionResult<Cliente> Create(ClienteDto clienteDto)
     {
-        var cliente = new Cliente
-        {
-            Nombre = clienteDto.Nombre,
-            Apellido = clienteDto.Apellido,
-            Direccion = clienteDto.Direccion
-        };
-
-        var created = _repository.Add(cliente);
+        var created = _repository.Add((Cliente)clienteDto);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
     [HttpPut("{id:int}")]
     public ActionResult<Cliente> Update(int id, ClienteDto clienteDto)
     {
-        var cliente = new Cliente
-        {
-            Nombre = clienteDto.Nombre,
-            Apellido = clienteDto.Apellido,
-            Direccion = clienteDto.Direccion
-        };
-
-        var updated = _repository.Update(id, cliente);
+        var updated = _repository.Update(id, (Cliente)clienteDto);
         return updated is null ? NotFound($"No existe un cliente con id {id}.") : Ok(updated);
     }
 

@@ -15,4 +15,7 @@ public class ClienteDto
     [Required(ErrorMessage = "La dirección es obligatoria.")]
     [MaxLength(100)]
     public required string Direccion { get; set; }
+
+    public static explicit operator Cliente(ClienteDto dto) =>
+        new() { Nombre = dto.Nombre, Apellido = dto.Apellido, Direccion = dto.Direccion };
 }
